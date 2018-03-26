@@ -1,0 +1,982 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "DataFeed API for CoinIndex cryptocurrency and exchange data",
+    "version" : "1.0.0",
+    "title" : "CoinIndex DataFeed API",
+    "contact" : {
+      "email" : "datafeed@coinindex.agency"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags" : [ {
+    "name" : "public",
+    "description" : "Access free, without License key"
+  }, {
+    "name" : "license",
+    "description" : "License key required"
+  }, {
+    "name" : "developers",
+    "description" : "For developers and admin"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/time" : {
+      "get" : {
+        "tags" : [ "developers", "public" ],
+        "summary" : "Get server time",
+        "description" : "Request current server time in UTC",
+        "operationId" : "time",
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "Server current time",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query",
+                  "example" : "OK",
+                  "enum" : [ "OK", "ERROR" ]
+                },
+                "data" : {
+                  "type" : "object",
+                  "description" : "Current system time",
+                  "properties" : {
+                    "time" : {
+                      "type" : "integer",
+                      "description" : "Server time in UTC timestamp",
+                      "example" : 1520856000
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data - time" ],
+              "example" : {
+                "status" : "OK",
+                "data" : {
+                  "time" : 1520856000
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/health" : {
+      "get" : {
+        "tags" : [ "developers", "public" ],
+        "summary" : "Check system alive",
+        "description" : "Checking current system\\'s alive",
+        "operationId" : "health",
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "Server current health status",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query",
+                  "example" : "OK",
+                  "enum" : [ "OK", "ERROR" ]
+                },
+                "data" : {
+                  "type" : "string",
+                  "description" : "System status",
+                  "example" : "OK",
+                  "enum" : [ "OK", "ERROR" ]
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : "OK"
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/fx/rates" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "Latest FX rates",
+        "description" : "Provides raw access to latest FX rates, used for internal calculates",
+        "operationId" : "fx_rates",
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "Current used FX rates",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "symbol" : {
+                        "type" : "string",
+                        "description" : "FX pair symbol",
+                        "example" : "EUR/USD"
+                      },
+                      "rate" : {
+                        "type" : "number",
+                        "format" : "float",
+                        "description" : "FX rate",
+                        "example" : 1.2964
+                      },
+                      "updated_at" : {
+                        "type" : "integer",
+                        "description" : "UTC datetime of rates last update",
+                        "example" : 1520856000
+                      },
+                      "updated_datetime" : {
+                        "type" : "string",
+                        "description" : "Human readable datetime of rates last update",
+                        "example" : "2018-03-12 12:00:00"
+                      },
+                      "currency" : {
+                        "type" : "string",
+                        "description" : "ISO code of currency",
+                        "example" : "USD"
+                      }
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                  "symbol" : "USD/RUB",
+                  "rate" : 56.8964,
+                  "updated_at" : 1520856000,
+                  "updated_datetime" : "2018-03-12 12:00:00",
+                  "currency" : "RUB"
+                } ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/exchanges/list" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "List of all connected exchanges",
+        "description" : "Provides full list of all connected cryptocurrency exchanges",
+        "operationId" : "exchanges_list",
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "List of all exchanges",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "ex_id" : {
+                        "type" : "integer",
+                        "description" : "Unique exchange ID",
+                        "example" : "62 for Bitfinex"
+                      },
+                      "ex_code" : {
+                        "type" : "string",
+                        "description" : "Unique symbolic code of exchange (lowercase, only alphabet and numbers)",
+                        "example" : "bitfinex for Bitfinex"
+                      },
+                      "ex_name" : {
+                        "type" : "string",
+                        "description" : "Exchange full name",
+                        "example" : "Bitfinex, BTCtrade.com.ua"
+                      },
+                      "ex_url" : {
+                        "type" : "string",
+                        "description" : "URL for exchange site",
+                        "example" : "https://www.bitfinex.com/"
+                      },
+                      "ex_country_code" : {
+                        "type" : "string",
+                        "description" : "ISO code of country (register or operate or main market or datacenter)",
+                        "example" : "USA, EU, CH, UA"
+                      },
+                      "total_trading_pairs" : {
+                        "type" : "integer",
+                        "description" : "Total trading pair, available on the exchange",
+                        "example" : 6
+                      },
+                      "total_trades" : {
+                        "type" : "integer",
+                        "description" : "Total trades collected from exchange (from all pairs)"
+                      },
+                      "last_update_datetime" : {
+                        "type" : "string",
+                        "description" : "Human readable datetime of last update",
+                        "example" : "2018-03-12 12:00:00"
+                      }
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                  "ex_id" : 51,
+                  "ex_code" : "abucoins",
+                  "ex_name" : "Abucoins",
+                  "ex_url" : "https://abucoins.com/",
+                  "ex_country_code" : "PL",
+                  "total_trading_pairs" : 36,
+                  "total_trades" : 38122,
+                  "last_update_datetime" : "2018-03-13 09:24:01"
+                } ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/exchanges/listing" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "New trading pair listed by date",
+        "description" : "Provides full list of all new listing for given date",
+        "operationId" : "exchanges_listing",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "date",
+          "type" : "string",
+          "format" : "date",
+          "required" : false,
+          "description" : "Date for listing (current date if empty), format YYYY-MM-DD"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "All new listings on given date, separated by exchange",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "ex_id" : {
+                        "type" : "integer",
+                        "description" : "Unique exchange ID",
+                        "example" : "62 for Bitfinex"
+                      },
+                      "ex_code" : {
+                        "type" : "string",
+                        "description" : "Unique symbolic code of exchange (lowercase, only alphabet and numbers)",
+                        "example" : "bitfinex for Bitfinex"
+                      },
+                      "ex_name" : {
+                        "type" : "string",
+                        "description" : "Exchange full name",
+                        "example" : "Bitfinex, BTCtrade.com.ua"
+                      },
+                      "ex_url" : {
+                        "type" : "string",
+                        "description" : "URL for exchange site",
+                        "example" : "https://www.bitfinex.com/"
+                      },
+                      "ex_country_code" : {
+                        "type" : "string",
+                        "description" : "ISO code of country (register or operate or main market or datacenter)",
+                        "example" : "USA, EU, CH, UA"
+                      },
+                      "pairs" : {
+                        "type" : "array",
+                        "description" : "Array of new listed pairs",
+                        "items" : {
+                          "type" : "object",
+                          "properties" : {
+                            "asset_id" : {
+                              "type" : "integer",
+                              "description" : "Unique id of this currency pair",
+                              "example" : 99
+                            },
+                            "asset" : {
+                              "type" : "string",
+                              "description" : "Asset symbol",
+                              "example" : "BTC"
+                            },
+                            "currency" : {
+                              "type" : "string",
+                              "description" : "Currency symbol",
+                              "example" : "USD"
+                            },
+                            "symbol" : {
+                              "type" : "string",
+                              "description" : "Canonical trading pair symbol",
+                              "example" : "BTC/USD"
+                            },
+                            "asset_type" : {
+                              "type" : "string",
+                              "description" : "Asset type",
+                              "example" : "CUR (Currency), FUT (Futures), OPT (Option), SWP (Swap)"
+                            },
+                            "total_trades" : {
+                              "type" : "integer",
+                              "description" : "Total collected trades for this pair",
+                              "example" : 212
+                            },
+                            "added_at_datetime" : {
+                              "type" : "string",
+                              "description" : "Datetime of adding to our base",
+                              "example" : "2018-02-23 05:38:02"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                  "ex_id" : 51,
+                  "ex_code" : "abucoins",
+                  "ex_name" : "Abucoins",
+                  "ex_url" : "https://abucoins.com/",
+                  "ex_country_code" : "PL",
+                  "total_trading_pairs" : 36,
+                  "total_trades" : 38122,
+                  "last_update_datetime" : "2018-03-13 09:24:01"
+                } ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/assets/exchanges" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "Exchange on which the specified asset is traded",
+        "description" : "Provides full list of exchanges, who traded asset or currency (or trading pair)",
+        "operationId" : "assets_exchanges",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "asset",
+          "type" : "string",
+          "required" : true,
+          "description" : "Asset code to find all traded pairs(e.g. BTC)"
+        }, {
+          "in" : "query",
+          "name" : "currency",
+          "type" : "string",
+          "required" : false,
+          "description" : "Currency code to find traded pairs for asset (e.g. USD or ETH)"
+        }, {
+          "in" : "query",
+          "name" : "symbol",
+          "type" : "string",
+          "required" : false,
+          "description" : "Full canonical trading pair, e.g. BTC/USD"
+        }, {
+          "in" : "query",
+          "name" : "hidden",
+          "type" : "number",
+          "required" : false,
+          "description" : "Include trading pairs without collected trades or not"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "All found exchanges and trading pairs",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "ex_id" : {
+                        "type" : "integer",
+                        "description" : "Unique exchange ID",
+                        "example" : "62 for Bitfinex"
+                      },
+                      "ex_code" : {
+                        "type" : "string",
+                        "description" : "Unique symbolic code of exchange (lowercase, only alphabet and numbers)",
+                        "example" : "bitfinex for Bitfinex"
+                      },
+                      "ex_name" : {
+                        "type" : "string",
+                        "description" : "Exchange full name",
+                        "example" : "Bitfinex, BTCtrade.com.ua"
+                      },
+                      "ex_url" : {
+                        "type" : "string",
+                        "description" : "URL for exchange site",
+                        "example" : "https://www.bitfinex.com/"
+                      },
+                      "ex_country_code" : {
+                        "type" : "string",
+                        "description" : "ISO code of country (register or operate or main market or datacenter)",
+                        "example" : "USA, EU, CH, UA"
+                      },
+                      "pairs" : {
+                        "type" : "array",
+                        "description" : "Array of traded pairs",
+                        "items" : {
+                          "type" : "object",
+                          "properties" : {
+                            "asset_id" : {
+                              "type" : "integer",
+                              "description" : "Unique id of this currency pair",
+                              "example" : 99
+                            },
+                            "asset" : {
+                              "type" : "string",
+                              "description" : "Asset symbol",
+                              "example" : "BTC"
+                            },
+                            "currency" : {
+                              "type" : "string",
+                              "description" : "Currency symbol",
+                              "example" : "USD"
+                            },
+                            "symbol" : {
+                              "type" : "string",
+                              "description" : "Canonical trading pair symbol",
+                              "example" : "BTC/USD"
+                            },
+                            "asset_type" : {
+                              "type" : "string",
+                              "description" : "Asset type",
+                              "example" : "CUR (Currency), FUT (Futures), OPT (Option), SWP (Swap)"
+                            },
+                            "total_trades" : {
+                              "type" : "integer",
+                              "description" : "Total collected trades for this pair",
+                              "example" : 212
+                            },
+                            "added_at_datetime" : {
+                              "type" : "string",
+                              "description" : "Datetime of adding to our base",
+                              "example" : "2018-02-23 05:38:02"
+                            },
+                            "last_trade_datetime" : {
+                              "type" : "string",
+                              "description" : "Last trade datetime",
+                              "example" : "2018-02-23 05:38:02"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                  "ex_id" : 51,
+                  "ex_code" : "abucoins",
+                  "ex_name" : "Abucoins",
+                  "ex_url" : "https://abucoins.com/",
+                  "ex_country_code" : "PL",
+                  "pairs" : [ {
+                    "asset_id" : 1,
+                    "asset" : "BTC",
+                    "currency" : "USD",
+                    "symbol" : "BTC/USD",
+                    "asset_type" : "CUR",
+                    "total_trades" : 345,
+                    "added_at_datetime" : "2018-02-23 05:38:02",
+                    "last_trade_datetime" : "2018-02-25 05:38:02"
+                  } ]
+                } ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/exchange/pairs" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "List of all current traded pairs",
+        "description" : "List of all current traded pairs on the exchange",
+        "operationId" : "exchange_pairs",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "exchange",
+          "type" : "string",
+          "required" : true,
+          "description" : "Exchange ID or code (e.g. 65 or bitfinex)"
+        }, {
+          "in" : "query",
+          "name" : "hidden",
+          "type" : "number",
+          "required" : false,
+          "description" : "Include trading pairs without collected trades or not"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "All found trading pairs by exchange",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {                    
+                      "type" : "object",
+                      "properties" : {
+                        "asset_id" : {
+                          "type" : "integer",
+                          "description" : "Unique id of this currency pair",
+                          "example" : 99
+                        },
+                        "asset" : {
+                          "type" : "string",
+                          "description" : "Asset symbol",
+                          "example" : "BTC"
+                        },
+                        "currency" : {
+                          "type" : "string",
+                          "description" : "Currency symbol",
+                          "example" : "USD"
+                        },
+                        "symbol" : {
+                          "type" : "string",
+                          "description" : "Canonical trading pair symbol",
+                          "example" : "BTC/USD"
+                        },
+                        "asset_type" : {
+                          "type" : "string",
+                          "description" : "Asset type",
+                          "example" : "CUR (Currency), FUT (Futures), OPT (Option), SWP (Swap)"
+                        },
+                        "total_trades" : {
+                          "type" : "integer",
+                          "description" : "Total collected trades for this pair",
+                          "example" : 212
+                        },
+                        "added_at_datetime" : {
+                          "type" : "string",
+                          "description" : "Datetime of adding to our base",
+                          "example" : "2018-02-23 05:38:02"
+                        },
+                        "last_trade_datetime" : {
+                          "type" : "string",
+                          "description" : "Last trade datetime",
+                          "example" : "2018-02-23 05:38:02"
+                        }
+                      }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                    "asset_id" : 1,
+                    "asset" : "BTC",
+                    "currency" : "USD",
+                    "symbol" : "BTC/USD",
+                    "asset_type" : "CUR",
+                    "total_trades" : 345,
+                    "added_at_datetime" : "2018-02-23 05:38:02",
+                    "last_trade_datetime" : "2018-02-25 05:38:02"
+                  }
+                ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+    "/exchange/trades" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "List of latest trades",
+        "description" : "List of up to 100 latest trades on the exchange",
+        "operationId" : "exchange_trades",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "exchange",
+          "type" : "string",
+          "required" : true,
+          "description" : "Exchange ID or code (e.g. 65 or bitfinex)"
+        },{
+          "in" : "query",
+          "name" : "asset",
+          "type" : "string",
+          "required" : true,
+          "description" : "Asset ID to obtain trades (e.g. 41, see @/exchange/pairs)"
+        }],
+        "responses" : {
+          "200" : {
+            "description" : "All latest trades (up to 100) by exchange",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {                    
+                      "type" : "object",
+                      "properties" : {
+                        "_id" : {
+                          "type" : "integer",
+                          "description" : "Unique id of this trade",
+                          "example" : 619004770
+                        },
+                        "trade_id" : {
+                          "type" : "string",
+                          "description" : "Unique id of this trade provided by exchange",
+                          "example" : "212085514 or ffeba8328579db9495db6e8b0f77c475"
+                        },
+                        "symbol" : {
+                          "type" : "string",
+                          "description" : "Canonical trading pair symbol",
+                          "example" : "BTC/USD"
+                        },
+                        "asset_type" : {
+                          "type" : "string",
+                          "description" : "Asset type",
+                          "example" : "CUR (Currency), FUT (Futures), OPT (Option), SWP (Swap)"
+                        },
+                        "trade_ts" : {
+                          "type" : "integer",
+                          "description" : "UTC time of this trade",
+                          "example" : "1521125789"
+                        },
+                        "trade_datetime" : {
+                          "type" : "string",
+                          "description" : "Datetime of this trade",
+                          "example" : "2018-03-15 14:56:29"
+                        },
+                        "trade_side" : {
+                          "type" : "string",
+                          "description" : "Trade side, if provided from exchange",
+                          "example" : "BUY, SELL or empty string value"
+                        },
+                        "trade_price" : {
+                          "type" : "float",
+                          "description" : "Trade price (in currency)",
+                          "example" : 0.00031596
+                        },
+                        "trade_amount" : {
+                          "type" : "float",
+                          "description" : "Total amount of trade, in asset",
+                          "example" : 2500
+                        },
+                        "trade_total" : {
+                          "type" : "float",
+                          "description" : "Total sum of trade, including trading fee, if provided by exchange",
+                          "example" : 0.7899
+                        },
+                        "trade_hash" : {
+                          "type" : "string",
+                          "description" : "Hash (MD5 func.) of this trade, including all metadata. May be used to verify integrity",
+                          "example" : "99acf3f36c4eb7056f739ea382127176"
+                        }
+                      }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {
+                "status" : "OK",
+                "data" : [ {
+                    _id: 619004770,
+                    trade_id: "212085514",
+                    asset_id: 24964,
+                    symbol: "AID/ETH",
+                    asset_type: "CUR",
+                    trade_ts: 1521125789,
+                    trade_datetime: "2018-03-15 14:56:29",
+                    trade_side: "SELL",
+                    trade_price: 0.00031596,
+                    trade_amount: 2500,
+                    trade_total: 0.7899,
+                    trade_hash: "99acf3f36c4eb7056f739ea382127176"
+                    },
+                    {
+                    _id: 619004769,
+                    trade_id: "212085515",
+                    asset_id: 24964,
+                    symbol: "AID/ETH",
+                    asset_type: "CUR",
+                    trade_ts: 1521125789,
+                    trade_datetime: "2018-03-15 14:56:29",
+                    trade_side: "SELL",
+                    trade_price: 0.00031595,
+                    trade_amount: 1249.875,
+                    trade_total: 0.394898006,
+                    trade_hash: "432a6c68153f0244ab00d27536374c25"
+                    },
+                    {
+                    _id: 618483974,
+                    trade_id: "212055621",
+                    asset_id: 24964,
+                    symbol: "AID/ETH",
+                    asset_type: "CUR",
+                    trade_ts: 1521122145,
+                    trade_datetime: "2018-03-15 13:55:45",
+                    trade_side: "BUY",
+                    trade_price: 0.00031796,
+                    trade_amount: 1249.875,
+                    trade_total: 0.397410255,
+                    trade_hash: "a89c2f1b4df4f08dd6cc21659ed0a41b"
+                    }
+                ]
+              }
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+	"/exchange/prices" : {
+      "get" : {
+        "tags" : [ "license" ],
+        "summary" : "Aggregated price by symbol from exchange",
+        "description" : "Provides 15 min aggregated and validated price (OHLC, TWAP, VWAP, Mid and volumes)",
+        "operationId" : "exchange_prices",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "asset",
+          "type" : "string",
+          "required" : true,
+          "description" : "Unique asset ID"
+        }, {
+          "in" : "query",
+          "name" : "exchange",
+          "type" : "string",
+          "required" : false,
+          "description" : "Exchange ID or code"
+        }, {
+          "in" : "query",
+          "name" : "to",
+          "type" : "number",
+          "required" : false,
+          "description" : "UTC timestamp"
+        },{
+          "in" : "query",
+          "name" : "limit",
+          "type" : "number",
+          "required" : false,
+          "description" : "Count results, from 1 up to 1000, default 100"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Returns aggregated prices from exchange (with 15 min timeframe)",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "status" : {
+                  "type" : "string",
+                  "description" : "Status of the query"
+                },
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "array",
+                    "items" : {
+					  "type" : "object",
+					  "properties": {
+						  "_id" : {
+							"type" : "integer",
+							"description" : "Unique price ID",
+							"example" : "14350870"
+						  },
+						  "asset_id" : {
+							  "type" : "integer",
+							  "description" : "Unique id of this currency pair",
+							  "example" : 99
+						  },
+						  "symbol" : {
+							  "type" : "string",
+							  "description" : "Canonical trading pair symbol",
+							  "example" : "BTC/USD"
+							},
+						  "price_twap" : {
+							"type" : "float",
+							"description" : "TWAP price (Time-Weighted average price)",
+							"example" : "24302.5"
+						  },
+						  "price_vwap" : {
+							"type" : "float",
+							"description" : "VWAP price (Volume-Weighted average price)",
+							"example" : "24302.5"
+						  },
+						  "price_mid" : {
+							"type" : "float",
+							"description" : "Median price",
+							"example" : "24302.5"
+						  },
+						  "price_low" : {
+							"type" : "float",
+							"description" : "Minimum price on the period",
+							"example" : "24300"
+						  },
+						  "price_high" : {
+							"type" : "float",
+							"description" : "Maximum price on the period",
+							"example" : "24304"
+						  },
+						  "price_open" : {
+							"type" : "float",
+							"description" : "First (open) price on the period",
+							"example" : "24304"
+						  },
+						  "price_close" : {
+							"type" : "float",
+							"description" : "Last (close) price on the period",
+							"example" : "24300"
+						  },
+						  "price_twap_dev_prc" : {
+							"type" : "float",
+							"description" : "Change in TWAP price relative to the previous value, percent",
+							"example" : "-5.31"
+						  },
+						  "price_vwap_dev_prc" : {
+							"type" : "float",
+							"description" : "Change in VWAP price relative to the previous value, percent",
+							"example" : "-3.31"
+						  },
+						  "price_mid_dev_prc" : {
+							"type" : "float",
+							"description" : "Change in median price relative to the previous value, percent",
+							"example" : "-5.33"
+						  },
+						  "vol_open" : {
+							"type" : "float",
+							"description" : "Total trade volume by open price",
+							"example" : "0.239"
+						  },	
+						"vol_low" : {
+							"type" : "float",
+							"description" : "Total trade volume by min price",
+							"example" : "0.08424"
+						  },						  
+						"vol_high" : {
+							"type" : "float",
+							"description" : "Total trade volume by high price",
+							"example" : "0.239"
+						  },	
+						  "vol_close" : {
+							"type" : "float",
+							"description" : "Total trade volume by close price",
+							"example" : "0.08424"
+						  },
+						"trades_used" : {
+							"type" : "integer",
+							"description" : "Total trades, aggregated in the period",
+							"example" : "12"
+						  },
+						 "trades_volume" : {
+							"type" : "integer",
+							"description" : "Total trade volume in the period",
+							"example" : "12"
+						  },
+						"trades_ts_from" : {
+							"type" : "integer",
+							"description" : "Timestamp beginning of the period",
+							"example" : "1521207900"
+						  },
+						 "trades_ts_to" : {
+							"type" : "integer",
+							"description" : "Timestamp ending of the period",
+							"example" : "1521207900"
+						  },
+						"time_from_previous_trade" : {
+							"type" : "integer",
+							"description" : "How much seconds has passed from the previous trade",
+							"example" : "400"
+						  },
+						  "compliance_total_level" : {
+							"type" : "integer",
+							"description" : "Total risk score of our automated checking system. 0 - all test passed OK, 1 - badly, but OK, 2 or higer - untrusted period",
+							"example" : "0"
+						  }
+					  }
+                    }
+                  }
+                }
+              },
+              "required" : [ "status", "data" ],
+              "example" : {"status":"OK","data":[{"_id":14523006,"asset_id":2,"symbol":"BTC\/UAH","price_twap":221355.125,"price_vwap":221321.02626012,"price_mid":221266,"price_min":"220521","price_max":"222300","price_open":220521,"price_close":222217,"price_twap_dev_prc":-35.09,"price_vwap_dev_prc":-35.1,"price_mid_dev_prc":-35.11,"vol_open":0.0022,"vol_min":"0.0022","vol_high":0.002997,"vol_close":0.012,"trades_used":8,"trades_volume":0.096915,"trades_ts_from":1521275400,"trades_ts_to":1521276300,"time_from_previous_trade":0,"compliance_total_level":0,"price_low":220521,"price_high":222300,"vol_low":0.0022},{"_id":14520515,"asset_id":2,"symbol":"BTC\/UAH","price_twap":221763.33333333,"price_vwap":221928.25606146,"price_mid":222385,"price_min":"220515","price_max":"222390","price_open":220515,"price_close":222385,"price_twap_dev_prc":-34.97,"price_vwap_dev_prc":-34.92,"price_mid_dev_prc":-34.78,"vol_open":0.01,"vol_min":"0.01","vol_high":0.006301,"vol_close":0.024572,"trades_used":3,"trades_volume":0.040873,"trades_ts_from":1521274500,"trades_ts_to":1521275400,"time_from_previous_trade":0,"compliance_total_level":0,"price_low":220515,"price_high":222390,"vol_low":0.01},{"_id":14517660,"asset_id":2,"symbol":"BTC\/UAH","price_twap":221361,"price_vwap":220954.30255224,"price_mid":220510,"price_min":"220510","price_max":"223063","price_open":220510,"price_close":223063,"price_twap_dev_prc":-35.08,"price_vwap_dev_prc":-35.2,"price_mid_dev_prc":-35.33,"vol_open":0.04,"vol_min":"0.04","vol_high":0.008428,"vol_close":0.008428,"trades_used":3,"trades_volume":0.048428,"trades_ts_from":1521273600,"trades_ts_to":1521274500,"time_from_previous_trade":0,"compliance_total_level":0,"price_low":220510,"price_high":223063,"vol_low":0.04}]}
+            }
+          },
+          "500" : {
+            "description" : "Server system error"
+          }
+        }
+      }
+    },
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/coinindex/DataFeed/1.0.0"
+}
